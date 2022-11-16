@@ -1,0 +1,63 @@
+---
+title: "HW5"
+output: html_document
+date: "2022-11-16"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(tidymodels)
+library(janitor)
+library(ggplot2)
+
+```
+
+#1
+```{r}
+poke_data1 <- read.csv("Pokemon.csv")
+
+poke_data<-clean_names(poke_data)
+
+
+```
+
+The clean names function took the column names and turned them lowercase as well as turned periods into underscores.
+
+#2
+```{r}
+pokebar <- ggplot(poke_data, aes(y=type_1)) + geom_bar()
+
+pokebar
+
+poke_data_f <-subset(poke_data,type_1 %in% c("Bug","Fire","Grass","Normal","Water","Psychic"))  
+
+poke_data_f$type_1 <- as.factor(poke_data_f$type_1)  
+
+poke_data_f$legendary <-as.factor(poke_data_f$legendary)
+```
+There are 18 types of Pokemon, the types are fairly evenly distributed, with the exception of flying type which has very few, fairy type does have a little less as well. 
+
+#3
+```{r}
+poke_data_split <- initial_split(poke_data_f, prop=.7, strata = type_1) 
+
+poke_train <- training(poke_data_split)
+poke_test <- testing(poke_data_split)
+
+#318 training observations
+count(poke_train)
+# 140 testing observations
+count(poke_test)
+
+poke_folds <- vfold_cv(poke_train, v = 5, stata = type_1)
+
+```
+There are multiple categorical outcomes so it is important to stratify again to get accurate cross validation.
+
+#4
+```{r}
+poke_re <- recipe(type_1 ~ legendary + generation+sp_atk+attack+speed+defense+hp+sp_def, data = poke_train) %>% step_dummy(c(legendary,generation)) %>% step_normalize(all_numeric_predictors())
+
+
+```
