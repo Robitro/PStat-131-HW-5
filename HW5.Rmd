@@ -11,7 +11,7 @@ library(tidymodels)
 library(janitor)
 library(ggplot2)
 library(glmnet)
-library(pROC)
+
 
 ```
 
@@ -107,7 +107,9 @@ poke_wf_final <- finalize_workflow(poke_wf,best_tune)
 
 poke_final_fit <- fit(poke_wf_final, poke_train)
 
-augment(poke_final_fit, poke_test) %>% accuracy(truth= type_1, estimate = .pred_class) 
+pred_res <- augment(poke_final_fit, poke_test) 
+
+accuracy(pred_res,truth= type_1, estimate = .pred_class) 
 
 ```
 
@@ -115,13 +117,10 @@ Our multinomial regression model predicted Pokemon with 36.43% accuracy, if valu
 
 ###8
 ```{r}
-type_pred <- predict(poke_final_fit,poke_test)
 
-poke_results <- bind_cols(poke_test,type_pred,id=NULL)
+conf_mat(pred_res,truth = type_1, estimate = .pred_class) 
 
-conf_mat(poke_results,truth = type_1, estimate = .pred_class) 
+roc_curve(pred_res, type_1, .pred_bug::.pred_water)
 
-
-#multiclass.roc(poke_results$type_1,type_pred )
 
 ```
