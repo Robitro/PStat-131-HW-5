@@ -11,6 +11,7 @@ library(tidymodels)
 library(janitor)
 library(ggplot2)
 library(glmnet)
+library(pROC)
 
 ```
 
@@ -104,8 +105,23 @@ best_tune <- select_best(tune_res,metric ='roc_auc')
 
 poke_wf_final <- finalize_workflow(poke_wf,best_tune)
 
-poke_test_fit <- fit(poke_wf_final, poke_test)
+poke_final_fit <- fit(poke_wf_final, poke_train)
 
-augment()
+augment(poke_final_fit, poke_test) %>% accuracy(truth= type_1, estimate = .pred_class) 
+
+```
+
+Our multinomial regression model predicted Pokemon with 36.43% accuracy, if values were evenly randomly assigned, we would expect only 16.66% accuracy.
+
+###8
+```{r}
+type_pred <- predict(poke_final_fit,poke_test)
+
+poke_results <- bind_cols(poke_test,type_pred,id=NULL)
+
+conf_mat(poke_results,truth = type_1, estimate = .pred_class) 
+
+
+#multiclass.roc(poke_results$type_1,type_pred )
 
 ```
