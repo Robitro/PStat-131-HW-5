@@ -15,7 +15,7 @@ library(glmnet)
 
 ```
 
-###1
+#1
 ```{r}
 poke_data <- read.csv("Pokemon.csv")
 
@@ -26,7 +26,7 @@ poke_data<-clean_names(poke_data)
 
 The clean names function took the column names and turned them lowercase as well as turned periods into underscores.
 
-###2
+#2
 ```{r}
 pokebar <- ggplot(poke_data, aes(y=type_1)) + geom_bar()
 
@@ -40,7 +40,7 @@ poke_data_f$legendary <-as.factor(poke_data_f$legendary)
 ```
 There are 18 types of Pokemon, the types are fairly evenly distributed, with the exception of flying type which has very few, fairy type does have a little less as well. 
 
-###3
+#3
 ```{r}
 set.seed(6688)
 poke_data_split <- initial_split(poke_data_f, prop=.7, strata = type_1) 
@@ -58,7 +58,7 @@ poke_folds <- vfold_cv(poke_train, v = 5, stata = type_1)
 ```
 There are multiple categorical outcomes so it is important to stratify again to get accurate cross validation.
 
-###4
+#4
 ```{r}
 poke_re <- recipe(type_1 ~ legendary + generation+sp_atk+attack+speed+defense+hp+sp_def, data = poke_train) %>% step_dummy(c(legendary,generation)) %>% step_normalize(all_numeric_predictors())
 
@@ -67,7 +67,7 @@ poke_re <- recipe(type_1 ~ legendary + generation+sp_atk+attack+speed+defense+hp
 
 ```
 
-###5
+#5
 
 ```{r}
 mix_spec <- 
@@ -84,7 +84,7 @@ tune_grid <- grid_regular(penalty(c(-5,5)),mixture(c(0,1)),levels = 10)
 We are fitting 10*10 grid to 5 folds so fitting 100 models.
 
 
-###6
+#6
 ```{r eval=FALSE}
 tune_res <- tune_grid(poke_wf, resamples = poke_folds, grid = tune_grid)
 #save(tune_res, file = "tune_res.rda")
@@ -99,7 +99,7 @@ autoplot(tune_res)
 
 it appears that small values of penalty and large values of mixture produce the best results on accuracy and ROC curve.
 
-###7
+#7
 ```{r}
 best_tune <- select_best(tune_res,metric ='roc_auc')
 
@@ -115,7 +115,7 @@ accuracy(pred_res,truth= type_1, estimate = .pred_class)
 
 Our multinomial regression model predicted Pokemon with 36.43% accuracy, if values were evenly randomly assigned, we would expect only 16.66% accuracy.
 
-###8
+#8
 ```{r}
 
 conf_mat(pred_res,truth = type_1, estimate = .pred_class) %>% autoplot(type = 'heatmap')
