@@ -118,9 +118,12 @@ Our multinomial regression model predicted Pokemon with 36.43% accuracy, if valu
 ###8
 ```{r}
 
-conf_mat(pred_res,truth = type_1, estimate = .pred_class) 
+conf_mat(pred_res,truth = type_1, estimate = .pred_class) %>% autoplot(type = 'heatmap')
 
-roc_curve(pred_res, type_1, .pred_bug::.pred_water)
+roc_curve(pred_res, truth = type_1, estimate = .pred_Bug:.pred_Water) %>% autoplot()
 
+roc_auc(pred_res, truth = type_1, estimate= .pred_Bug:.pred_Water)
 
 ```
+
+our overall area under the ROC_curve is .6820. Our model does fairly well predicting Psychic and Normal types fairly well, it does marginally worse on bug and grass types and is not very good at distinguishing water and fire types. The model seems to guess water type if it doesn't know and that may be bringing the ROC curve on water type down.  
